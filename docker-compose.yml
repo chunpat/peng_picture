@@ -1,0 +1,22 @@
+version: '3'
+services:
+  fashop1:
+    image: fashop/fashop:v2.0.0
+    ports:
+      - 9510:9510
+    volumes:
+      - ./:/var/www/
+    stdin_open: true
+    tty: true
+    privileged: true
+    entrypoint: ["php", "/var/www/fashop/fashop", "start"]
+
+  swoole:
+    image: ezkuangren/swoole4
+    ports:
+      - "9511:9510"
+    volumes:
+      - ./:/var/www/project
+    stdin_open: true
+    tty: true
+    privileged: true

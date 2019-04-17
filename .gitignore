@@ -1,0 +1,5 @@
+Log
+composer.lock
+.idea/
+Temp/
+vendor/
