@@ -16,4 +16,5 @@ class Code extends SplEnum
 
     //全
     const UNAUTHORIZED = 10000;
+    const CODE_BAD_REQUEST = 40000;
 }

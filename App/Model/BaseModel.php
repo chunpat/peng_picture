@@ -81,7 +81,7 @@ class BaseModel
 
     function update(SplBean $bean, array $data)
     {
-        $this->getDb()->where('member_id', $bean->getMemberId())->update($this->table, $data);
+        $this->getDb()->where('id', $bean->getId())->update($this->table, $data);
         return $this->getDb()->getAffectRows();
     }
 
@@ -92,6 +92,6 @@ class BaseModel
 
     function delete(SplBean $bean)
     {
-        return $this->getDb()->where('member_id', $bean->getId())->delete($this->table);
+        return $this->getDb()->where('id', $bean->getId())->delete($this->table);
     }
 }

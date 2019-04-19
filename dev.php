@@ -59,30 +59,6 @@ return [
         'POOL_MAX_NUM'  => '10',
         'POOL_TIME_OUT' => '0.1'
     ],
-    /*################ MYSQL CONFIG 多数据库情况 ##################*/
-    'MYSQL2'        => [
-        'host'          => '127.0.0.1',//防止报错,就不切换数据库了
-        'port'          => '3306',
-        'user'          => 'root',
-        'timeout'       => '5',
-        'charset'       => 'utf8mb4',
-        'password'      => '123456',
-        'database'      => 'test',//防止报错,就不切换数据库了
-        'POOL_MAX_NUM'  => '10',
-        'POOL_TIME_OUT' => '0.1'
-    ],
-    /*################ MYSQL CONFIG 匿名连接池情况 ##################*/
-    'MYSQL3'        => [
-        'host'          => '127.0.0.1',//防止报错,就不切换数据库了
-        'port'          => '3306',
-        'user'          => 'root',
-        'timeout'       => '5',
-        'charset'       => 'utf8mb4',
-        'password'      => '123456',
-        'database'      => 'test',//防止报错,就不切换数据库了
-        'POOL_MAX_NUM'  => '10',
-        'POOL_TIME_OUT' => '0.1'
-    ],
     /*################ REDIS CONFIG ##################*/
     'REDIS'         => [
         'host'          => '127.0.0.1',
@@ -95,4 +71,9 @@ return [
     'ACTION_EXCEPTS'  => [
         'authorizations',
     ],
+    'qiniu'=>[
+        'ACCESS_KEY'=>'',
+        'SECRET_KEY'=>'',
+        'BUCKET_NAME'=>''
+    ]
 ];

@@ -9,6 +9,7 @@
 namespace App\Model\User;
 
 
+use App\Utils\Encrypt;
 use EasySwoole\Spl\SplBean;
 
 class UserBean extends SplBean
@@ -20,7 +21,6 @@ class UserBean extends SplBean
     protected $openid;
     protected $last_login_time;
     protected $balance;
-    protected $mobile;
     protected $create_time;
     protected $update_time;
 
@@ -68,6 +68,13 @@ class UserBean extends SplBean
     {
         $this->password = $password;
     }
+
+    public function encryptPassword($password): void
+    {
+        $this->password = Encrypt::encrypt($password);
+    }
+
+
     /**
      * @return mixed
      */
@@ -112,18 +119,14 @@ class UserBean extends SplBean
     {
         $this->Balance = $balance;
     }
-    /**
-     * @return mixed
-     */
-    public function getMobile()
+
+    public function getCreateTime()
     {
-        return $this->mobile;
+        return $this->create_time;
     }
-    /**
-     * @param mixed $mobile
-     */
-    public function setMobile($mobile): void
+
+    public function setCreateTime( $createTime): void
     {
-        $this->mobile = $mobile;
+        $this->create_time = $createTime;
     }
 }

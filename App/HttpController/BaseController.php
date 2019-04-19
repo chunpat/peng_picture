@@ -60,7 +60,7 @@ class BaseController extends Controller
      *
      * @return bool
      */
-    protected function successResponse($result = null, $msg = null, $statusCode = 200)
+    protected function successResponse($result = null, $msg = '成功', $statusCode = 200)
     {
         return $this->writeJson($statusCode,$result,$msg);
     }

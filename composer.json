@@ -8,7 +8,8 @@
         "easyswoole/easyswoole": "3.x",
         "easyswoole/mysqli": "^1.1",
         "easyswoole/verifycode": "^3.0",
-        "firebase/php-jwt": "^5.0"
+        "firebase/php-jwt": "^5.0",
+        "qiniu/php-sdk": "^7.2"
 
     }
 }

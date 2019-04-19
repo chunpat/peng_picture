@@ -11,10 +11,12 @@ namespace App\HttpController;
 use App\Model\User\UserModel;
 use App\Utility\Pool\MysqlObject;
 use App\Utility\Pool\MysqlPool;
+use App\Utils\Encrypt;
 
 class Token extends BaseController
 {
     protected $user = [];
+    protected $userId = 0;
     protected $accessToken;
     protected $request;
 
@@ -26,7 +28,7 @@ class Token extends BaseController
     // todo 设置RequestUserBean
     final protected function getRequestUser()
     {
-        try{
+//        try{
             if( empty( $this->user ) ){
                 $access_token_data = $this->getRequestAccessToken();
                 $id   = $access_token_data['uuid'];
@@ -38,16 +40,30 @@ class Token extends BaseController
             } else{
                 return $this->user;
             }
-        }catch(\Firebase\JWT\SignatureInvalidException $e) {  //签名不正确
-            $this->failResponse('签名不正确');
-        }catch(\Firebase\JWT\BeforeValidException $e) {  // 签名在某个时间点之后才能用
-            $this->failResponse('签名在某个时间点之后才能用');
-        }catch(\Firebase\JWT\ExpiredException $e) {  // token过期
-            $this->failResponse('access_token过期');
-        }catch (\Exception $exception){
-            $this->failResponse($exception->getMessage());
-        }
+//        }catch(\Firebase\JWT\SignatureInvalidException $e) {  //签名不正确
+//            $this->failResponse('签名不正确');
+//        }catch(\Firebase\JWT\BeforeValidException $e) {  // 签名在某个时间点之后才能用
+//            $this->failResponse('签名在某个时间点之后才能用');
+//        }catch(\Firebase\JWT\ExpiredException $e) {  // token过期
+//            $this->failResponse('access_token过期');
+//        }catch (\Exception $exception){
+//            $this->failResponse($exception->getMessage());
+//        }
 
+    }
+
+    /**
+     * 获取userId
+     * @author: zzhpeng
+     * Date: 2019/4/19
+     * @return int
+     * @throws \Exception
+     */
+    final protected function userId(){
+        if(empty($this->userId)){
+            $this->userId = $this->getRequestUser()['profile']['id'];
+        }
+        return $this->userId;
     }
 
     final protected function getRequestAccessToken() : ?array
@@ -117,7 +133,7 @@ class Token extends BaseController
                 ]]);
             });
 
-            if(!$data || $this->encrypt($params['password']) !== $data['password']){
+            if(!$data || Encrypt::encrypt(($params['password'])) !== $data['password']){
                 throw new \Exception('账号不存在或密码不正确');
             }
 
@@ -128,8 +144,5 @@ class Token extends BaseController
         }
     }
 
-    public function encrypt($password){
-        return $password;
-//        return md5($password);
-    }
+
 }
