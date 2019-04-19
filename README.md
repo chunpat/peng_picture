@@ -1,9 +1,9 @@
 # peng_picture 基于七牛的图床
 
 ## 登录相关
-  1、获取access_token接口 /token/authorizations    ✅
-  2、注册接口  /Register   ✅
-  3、刷新access_token接口  
+  * 1、获取access_token接口 /token/authorizations    ✅
+  * 2、注册接口  /Register   ✅
+  * 3、刷新access_token接口  
 
 ## 图片分类处理
   * 1、添加      /Catalog/save     ✅
