@@ -9,9 +9,11 @@
 namespace EasySwoole\EasySwoole;
 
 
+use App\Service\Env;
 use App\Utility\Pool\Mysql2Pool;
 use App\Utility\Pool\MysqlPool;
 use App\Utility\Pool\RedisPool;
+use EasySwoole\Component\Di;
 use EasySwoole\Component\Pool\PoolManager;
 use EasySwoole\EasySwoole\Swoole\EventRegister;
 use EasySwoole\EasySwoole\AbstractInterface\Event;
@@ -24,6 +26,7 @@ class EasySwooleEvent implements Event
 
     public static function initialize()
     {
+        Env::getInstance()->load('.env');
         //注册之后会返回conf配置,可继续配置,如果返回null代表注册失败
 
         // TODO: Implement initialize() method.
@@ -48,6 +51,8 @@ class EasySwooleEvent implements Event
             $dbConf = new \EasySwoole\Mysqli\Config($conf);
             return new Mysqli($dbConf);
         });
+
+
     }
 
     public static function mainServerCreate(EventRegister $register)

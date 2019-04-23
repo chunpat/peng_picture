@@ -1,22 +1,22 @@
 version: '3'
 services:
-  fashop1:
-    image: fashop/fashop:v2.0.0
+  peng_picture:
+    build:
+      context: .
+      args:
+        PHP_VERSION: ${PHP72_VERSION}
+        PHP_SWOOLE_VERSION: ${PHP72_SWOOLE_VERSION}
+        REPLACE_SOURCE_LIST: ${REPLACE_SOURCE_LIST}
     ports:
-      - 9510:9510
+      - 9510:9501
     volumes:
-      - ./:/var/www/
+      - ./:/var/www/peng_picture
     stdin_open: true
     tty: true
     privileged: true
-    entrypoint: ["php", "/var/www/fashop/fashop", "start"]
+    entrypoint: ["php", "/var/www/peng_picture/easyswoole", "start"]
+    networks:
+      - default
 
-  swoole:
-    image: ezkuangren/swoole4
-    ports:
-      - "9511:9510"
-    volumes:
-      - ./:/var/www/project
-    stdin_open: true
-    tty: true
-    privileged: true
+networks:
+  default:

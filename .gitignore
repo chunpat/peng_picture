@@ -3,3 +3,4 @@ composer.lock
 .idea/
 Temp/
 vendor/
+.env
