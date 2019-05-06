@@ -62,7 +62,19 @@ class BaseController extends Controller
      */
     protected function successResponse($result = null, $msg = '成功', $statusCode = 200)
     {
-        return $this->writeJson($statusCode,$result,$msg);
+        if (!$this->response()->isEndResponse()) {
+            $data = Array(
+                "error_code" => $statusCode,
+                "result" => $result,
+                "error_msg" => $msg
+            );
+            $this->response()->write(json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+            $this->response()->withHeader('Content-type', 'application/json;charset=utf-8');
+            $this->response()->withStatus(200);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -77,6 +89,18 @@ class BaseController extends Controller
      */
     protected function failResponse($msg = '接口返回错误',$statusCode = 400,$result = null)
     {
-       return $this->writeJson($statusCode,$result,$msg);
+        if (!$this->response()->isEndResponse()) {
+            $data = Array(
+                "error_code" => $statusCode,
+                "result" => $result,
+                "error_msg" => $msg
+            );
+            $this->response()->write(json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+            $this->response()->withHeader('Content-type', 'application/json;charset=utf-8');
+            $this->response()->withStatus(200);
+            return true;
+        } else {
+            return false;
+        }
     }
 }

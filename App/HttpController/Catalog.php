@@ -9,8 +9,8 @@
 namespace App\HttpController;
 
 
-use App\Model\Catalog\CatalogModel;
-use App\Model\Catalog\CatalogBean;
+use App\Model\Catalog\FileModel;
+use App\Model\Catalog\QiniuPluginBean;
 use App\Utility\Pool\MysqlObject;
 use App\Utility\Pool\MysqlPool;
 use App\Utils\Date;
@@ -31,8 +31,12 @@ class Catalog extends Token
 
             //用账户查找用户,验证是否存在该用户
             $catalog = MysqlPool::invoke(function (MysqlObject $db) use($conditions) {
-                $catalogModel = new CatalogModel($db);
+                $catalogModel = new FileModel($db);
                 $result = $catalogModel->getAll($conditions);
+
+                //整理父类parent_id关系
+                $result['list'] = $this->makeTree($result['list']);
+
                 return $result;
             });
 
@@ -69,8 +73,6 @@ class Catalog extends Token
 
         if(isset($param['parent_id'])){
             array_push($where,['parent_id',$param['parent_id']]);
-        }else{
-            array_push($where,['parent_id',0]);
         }
 
         if(!empty($where)){
@@ -100,8 +102,8 @@ class Catalog extends Token
             }
 
             MysqlPool::invoke(function (MysqlObject $db) use($param,$userId) {
-                $catalogModel= new CatalogModel($db);
-                $catalogBean = new CatalogBean();
+                $catalogModel= new FileModel($db);
+                $catalogBean = new QiniuPluginBean();
 
                 //查找数据是否有该目录名的数据
                 $isExist = $catalogModel->getOne([
@@ -154,8 +156,8 @@ class Catalog extends Token
             }
 
             MysqlPool::invoke(function (MysqlObject $db) use($param,$userId) {
-                $catalogModel = new CatalogModel($db);
-                $catalogBean = new CatalogBean();
+                $catalogModel = new FileModel($db);
+                $catalogBean = new QiniuPluginBean();
 
                 //验证
                 $catalog = $catalogModel->getOne([
@@ -230,8 +232,8 @@ class Catalog extends Token
             }
 
             MysqlPool::invoke(function (MysqlObject $db) use($param,$userId) {
-                $catalogModel = new CatalogModel($db);
-                $catalogBean = new CatalogBean();
+                $catalogModel = new FileModel($db);
+                $catalogBean = new QiniuPluginBean();
 
                 //验证 todo 在使用的目录不给删除
                 $catalog = $catalogModel->getOne([
@@ -260,5 +262,33 @@ class Catalog extends Token
         }catch (\Exception $exception){
             return $this->failResponse($exception->getMessage());
         }
+    }
+
+    /**
+     * 一级生成树
+     * @author: zzhpeng
+     * Date: 2019/4/28
+     * @param $array
+     *
+     * @return array
+     */
+    public function makeTree($array){
+        //循环找出所有的parent_id=0
+        $parentTree = [];
+        foreach($array as $value){
+            if($value['parent_id'] == 0){
+                $value['child'] = null;
+                $parentTree[] = $value;
+            }
+        }
+        foreach($parentTree as &$parentTreeValue){
+            foreach ($array as $arrayValue){
+                if($parentTreeValue['id'] == $arrayValue['parent_id']){
+                    $parentTreeValue['child'][] =  $arrayValue;
+                }
+            }
+        }
+
+        return $parentTree;
     }
 }

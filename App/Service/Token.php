@@ -65,6 +65,7 @@ class Token
      * @throws \Exception
      */
     public static function verifyToken(array $header) : array {
+        if(!isset($header['authorization'])) throw new \Exception('header缺少authorization参数');
         //取出access_token
         list($bearer,$accessToken) = explode(' ',$header['authorization'][0]);
         if($bearer !== self::TOKEN_TYPE){
