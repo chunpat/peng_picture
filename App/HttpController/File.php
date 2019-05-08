@@ -10,6 +10,7 @@ namespace App\HttpController;
 
 use App\Model\File\FileModel;
 use App\Model\QiniuPlugin\QiniuPluginModel;
+use App\Service\Env;
 use App\Utility\Pool\MysqlObject;
 use App\Utility\Pool\MysqlPool;
 use App\Utils\Date;
@@ -221,7 +222,7 @@ class File extends Token
                 throw new \Exception('请先配置七牛');
             }
             $policy = array(
-                'callbackUrl' => 'http://r4kgka.natappfree.cc/service/fileCallBack',
+                'callbackUrl' => Env::getInstance()->get('QINIU.CALLBACK_URL') . '/service/fileCallBack',
                 'callbackBody' => '{"fname":"$(fname)","fkey":"$(key)","desc":"$(x:name)","uid":' . $userId . ',"domain":' . '"' .$qiniuPlugin['domain'] . '"' . '}'
             );
             $auth = new \Qiniu\Auth($qiniuPlugin['accessKey'], $qiniuPlugin['secretKey']);
