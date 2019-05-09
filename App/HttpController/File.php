@@ -8,6 +8,7 @@
 
 namespace App\HttpController;
 
+use App\Model\Catalog\CatalogModel;
 use App\Model\File\FileModel;
 use App\Model\QiniuPlugin\QiniuPluginModel;
 use App\Service\Env;
@@ -28,11 +29,24 @@ class File extends Token
     public function index(){
         try{
             $conditions = $this->getConditions();
-
+            $param = $this->request()->getRequestParam();
             //用账户查找用户,验证是否存在该用户
-            $file = MysqlPool::invoke(function (MysqlObject $db) use($conditions) {
+            $file = MysqlPool::invoke(function (MysqlObject $db) use($conditions,$param) {
                 $fileModel = new FileModel($db);
-                $result = $fileModel->getAll($conditions);
+                $qiniuPluginModel = new QiniuPluginModel($db);
+                $catalogModel = new CatalogModel($db);
+                $catalogs = $catalogModel->getAll($conditions)['list'];
+                $catalogs = array_column($catalogs,'name','id');
+
+                $result = $fileModel->getAll($conditions,$param);
+                $qiniuPlugin = $qiniuPluginModel->getOne($conditions);
+
+                //分类转换
+                foreach($result['list'] as &$item){
+                    $item['catalog'] = $catalogs[$item['catalog_id']] ?? '未分类';
+                }
+
+                $result['style_separator'] = $qiniuPlugin['style_separator'];
                 return $result;
             });
 
@@ -70,7 +84,12 @@ class File extends Token
 
         if(!empty($where)){
             $condition = [
-                'where'=>$where
+                'where'=>$where,
+                'orderBy'=>[
+                    [
+                        'id','DESC'
+                    ]
+                ]
             ];
         }
 
@@ -221,9 +240,10 @@ class File extends Token
             if(!$qiniuPlugin){
                 throw new \Exception('请先配置七牛');
             }
+
             $policy = array(
                 'callbackUrl' => Env::getInstance()->get('QINIU.CALLBACK_URL') . '/service/fileCallBack',
-                'callbackBody' => '{"fname":"$(fname)","fkey":"$(key)","desc":"$(x:name)","uid":' . $userId . ',"domain":' . '"' .$qiniuPlugin['domain'] . '"' . '}'
+                'callbackBody' => '{"fname":"$(fname)","fkey":"$(key)","desc":"$(x:name)","uid":' . $userId . '}'
             );
             $auth = new \Qiniu\Auth($qiniuPlugin['accessKey'], $qiniuPlugin['secretKey']);
             $upToken = $auth->uploadToken($qiniuPlugin['bucket'], null, 3600, $policy);

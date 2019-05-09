@@ -54,13 +54,13 @@ class BaseController extends Controller
      * 返回成功
      * @author: zzhpeng
      * Date: 2019/4/13
-     * @param null $result
-     * @param null $msg
+     * @param array $result
+     * @param string $msg
      * @param int  $statusCode
      *
      * @return bool
      */
-    protected function successResponse($result = null, $msg = '成功', $statusCode = 200)
+    protected function successResponse($result = [], $msg = '成功', $statusCode = 200)
     {
         if (!$this->response()->isEndResponse()) {
             $data = Array(

@@ -14,6 +14,7 @@ use App\Model\QiniuPlugin\QiniuPluginModel;
 use App\Utility\Pool\MysqlObject;
 use App\Utility\Pool\MysqlPool;
 use App\Utils\Date;
+use App\Utils\Encrypt;
 use App\Validate\FileValidate;
 
 class Service extends BaseController
@@ -28,18 +29,18 @@ class Service extends BaseController
     public function fileCallBack(){
         try{
 //            $param = [
-//                '{"fname":"u=3237964333,132247562&fm=173&s=1682B5E2061B0BD258F46418030060C1&w=534&h=233&_img_JPEG","fkey":"u=3237964333,132247562&fm=173&s=1682B5E2061B0BD258F46418030060C1&w=534&h=233&img_JPEG","desc":"u=3237964333,132247562&fm=173&s=1682B5E2061B0BD258F46418030060C1&w=534&h=233&img","uid":14,"domain":"img_zzhpeng_cn"}'
+//                '{"fname":"u=294933166,3288490880&fm=170&s=6500F51253B37FB10E7154C40300A030&w=440&h=410&img_JPG","fkey":"u=294933166,3288490880&fm=170&s=6500F51253B37FB10E7154C40300A030&w=440&h=410&img_JPG","desc":"u=294933166,3288490880&fm=170&s=6500F51253B37FB10E7154C40300A030&w=440&h=410&img","key":"MDAwMDAwMDAwMMeugZOUiYqhh511ZK6lrdDHZWmbxYxon4GgfqWYfrPcxa_nxX9jsK6ZimGirtDTm8Z7ep/Goperi2lon5qHnqI"}'
 //                =>''
 //            ];
 
             //json处理
             $param = $this->request()->getRequestParam();
-////            var_dump($param);
+
             if(!$param){
                 throw new \Exception('缺少参数');
             }
-            $param = \Qiniu\json_decode(preg_replace('/_(jpg|jpeg|gif|bmp|bnp|png)/',".\${1}",array_keys($param)[0]),true);
-//            var_dump($param);
+            $param = \Qiniu\json_decode(preg_replace('/_(jpg|JPG|jpeg|JPEG|gif|GIF|bmp|BMP|bnp|BNP|png|PNG)/',".\${1}",array_keys($param)[0]),true);
+
             $validate = ($validate = new FileValidate())->qadd($param);
             if($validate){
                 throw new \Exception($validate);
@@ -80,9 +81,9 @@ class Service extends BaseController
                 if(empty($isExist)){
                     $fileBean->setUserId($param['uid']);
                     $fileBean->setFname($param['fname']);
-                    $fileBean->setUrl($param['domain'] . '/' . $param['fkey']);
+                    $fileBean->setUrl($qiniuPlugin['domain'] . '/' . $param['fkey']);
                     $fileBean->setPath($param['fkey']);
-                    $fileBean->setHost($param['domain']);
+                    $fileBean->setHost($qiniuPlugin['domain']);
                     $fileBean->setDesc($param['desc']);
                     $fileBean->setCatalogId($param['catalog_id'] ?? 0);
                     $fileBean->setCreateTime(Date::defaultDate());

@@ -33,8 +33,10 @@ class BaseModel
         return $this->db;
     }
 
-    function getAll($condition = [], int $page = 1, $pageSize = 10): array
+    function getAll($condition = [], array $request = []): array
     {
+        $page = $request['page'] ?? 1;
+        $pageSize = $request['count']?? 10;
         $allow = ['where', 'orWhere', 'join', 'orderBy', 'groupBy'];
         foreach ($condition as $k => $v) {
             if (in_array($k, $allow)) {
@@ -47,7 +49,7 @@ class BaseModel
             ->withTotalCount()
             ->get($this->table, [$pageSize * ($page - 1), $pageSize]);
         $total = $this->getDb()->getTotalCount();
-        return ['total' => $total, 'list' => $list];
+        return ['total' => $total, 'list' => $list,'page' => $page];
     }
 
     /**

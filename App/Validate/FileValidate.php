@@ -24,7 +24,6 @@ class FileValidate extends BaseValidate
     public function qadd($data){
         // TODO: Implement index() method.
         $valitor = new Validate();
-        $valitor->addColumn('domain', 'domain不能为空')->required('domain不能为空');
         $valitor->addColumn('fkey', 'fkey不能为空')->required('fkey不能为空');
         $valitor->addColumn('fname', 'fname不能为空')->required('fname不能为空');
         $valitor->addColumn('desc', 'desc不能为空')->required('desc不能为空');
