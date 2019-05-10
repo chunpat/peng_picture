@@ -114,7 +114,7 @@ class Token extends BaseController
      * @author: zzhpeng
      * Date: 2019/4/12
      */
-    public function authorizations()
+    public function authorization()
     {
         try{
             //验证  是否有账户密码
@@ -132,7 +132,6 @@ class Token extends BaseController
                     ['account',$account]
                 ]]);
             });
-
             if(!$data || Encrypt::encrypt(($params['password'])) !== $data['password']){
                 throw new \Exception('账号不存在或密码不正确');
             }

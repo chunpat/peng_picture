@@ -6,7 +6,6 @@
  * Time: 12:31 PM
  */
 namespace App\Model;
-use App\Model\Member\MemberBean;
 use App\Utility\Pool\MysqlObject;
 use EasySwoole\Spl\SplBean;
 
