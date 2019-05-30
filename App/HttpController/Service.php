@@ -101,7 +101,7 @@ class Service extends BaseController
         }catch (\Exception $exception){
 //            throw $exception;
             //todo 日志
-            return $this->failResponse($exception->getMessage());
+            return $this->failResponse($exception->getMessage(),$exception->getCode());
         }
     }
 }

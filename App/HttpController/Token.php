@@ -28,10 +28,10 @@ class Token extends BaseController
     // todo 设置RequestUserBean
     final protected function getRequestUser()
     {
-//        try{
+        try{
             if( empty( $this->user ) ){
-                $access_token_data = $this->getRequestAccessToken();
-                $id   = $access_token_data['uuid'];
+                $accessTokenData = $this->getRequestAccessToken();
+                $id   = $accessTokenData['uuid'];
                 $this->user = $this->getUserInfo($id);
                 if( empty( $this->user ) ){
                     throw new \Exception('没有该用户信息');
@@ -40,15 +40,15 @@ class Token extends BaseController
             } else{
                 return $this->user;
             }
-//        }catch(\Firebase\JWT\SignatureInvalidException $e) {  //签名不正确
-//            $this->failResponse('签名不正确');
-//        }catch(\Firebase\JWT\BeforeValidException $e) {  // 签名在某个时间点之后才能用
-//            $this->failResponse('签名在某个时间点之后才能用');
-//        }catch(\Firebase\JWT\ExpiredException $e) {  // token过期
-//            $this->failResponse('access_token过期');
-//        }catch (\Exception $exception){
-//            $this->failResponse($exception->getMessage());
-//        }
+        }catch(\Firebase\JWT\SignatureInvalidException $e) {  //签名不正确
+             throw new \Exception('签名不正确');
+        }catch(\Firebase\JWT\BeforeValidException $e) {  // 签名在某个时间点之后才能用
+            throw new \Exception('签名在某个时间点之后才能用');
+        }catch(\Firebase\JWT\ExpiredException $e) {  // token过期
+            throw new \Exception('access_token过期',401);
+        }catch (\Exception $exception){
+            throw new \Exception($exception->getMessage());
+        }
 
     }
 
@@ -71,7 +71,14 @@ class Token extends BaseController
         if( $this->accessToken ){
             return $this->accessToken;
         } else{
-            $jwt = \App\Service\Token::getAccessToken($this->request()->getHeaders());
+            $header = $this->request()->getHeaders();var_dump($header);
+            if(!isset($header['authorization'])) {
+                throw new \Exception('header缺少authorization参数');
+            }else{
+                $authorization = $header['authorization'][0] ?? '';
+            }
+
+            $jwt = \App\Service\Token::getAccessToken($authorization);
             return $jwt;
         }
     }
@@ -118,29 +125,66 @@ class Token extends BaseController
     {
         try{
             //验证  是否有账户密码
-            $params = $this->request()->getParsedBody();
-            if(!isset($params['account']) || !isset($params['password'])){
-                throw new \Exception('缺少参数');
+            $content = $this->request()->getBody()->__toString();
+            $params = json_decode($content, true);
+//            $params = $this->request()->getRequestParam();
+//            var_dump($raw_array['account']);
+            //判断是否是刷新
+            if(isset($params['refresh_token'])){
+                $token = \App\Service\Token::refreshToken($params['refresh_token']);
+            }else{
+                if(!isset($params['account']) || !isset($params['password'])){
+                    throw new \Exception('缺少参数');
+                }
+                $account = $params['account'];
+
+                $data = MysqlPool::invoke(function (MysqlObject $db) use ($account){
+                    $userModel = new UserModel($db);
+                    //new 一个条件类,方便传入条件
+
+                    return $userModel->getOne(['where'=>[
+                        ['account',$account]
+                    ]]);
+                });
+                if(!$data || Encrypt::encrypt(($params['password'])) !== $data['password']){
+                    throw new \Exception('账号不存在或密码不正确');
+                }
+
+                $token = \App\Service\Token::generateToken($data);
             }
-            $account = $params['account'];
 
-            $data = MysqlPool::invoke(function (MysqlObject $db) use ($account){
-                $userModel = new UserModel($db);
-                //new 一个条件类,方便传入条件
-
-                return $userModel->getOne(['where'=>[
-                    ['account',$account]
-                ]]);
-            });
-            if(!$data || Encrypt::encrypt(($params['password'])) !== $data['password']){
-                throw new \Exception('账号不存在或密码不正确');
-            }
-
-            $token = \App\Service\Token::generateToken($data);
             $this->successResponse($token);
         }catch (\Exception $exception){
-            $this->failResponse($exception->getMessage());
+            $this->failResponse($exception->getMessage(),$exception->getCode());
         }
+    }
+
+    /**
+     * 检验token是否有效
+     * @author: zzhpeng
+     * Date: 2019/5/30
+     */
+    public function check()
+    {
+        try{
+            $content = $this->request()->getBody()->__toString();
+            $params = json_decode($content, true);
+            if(!isset($params['authorization'])){
+                throw new \Exception('缺少参数');
+            }
+            //判断是否是刷新
+            \App\Service\Token::getAccessToken($params['authorization']);
+            $this->successResponse();
+        }catch(\Firebase\JWT\SignatureInvalidException $e) {  //签名不正确
+            throw new \Exception('签名不正确');
+        }catch(\Firebase\JWT\BeforeValidException $e) {  // 签名在某个时间点之后才能用
+            throw new \Exception('签名在某个时间点之后才能用');
+        }catch(\Firebase\JWT\ExpiredException $e) {  // token过期
+            throw new \Exception('access_token过期',401);
+        }catch (\Exception $exception){
+            throw new \Exception($exception->getMessage());
+        }
+
     }
 
 

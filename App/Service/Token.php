@@ -56,18 +56,55 @@ class Token
     }
 
     /**
+     * 刷新token
+     * @author: zzhpeng
+     * Date: 2019/5/15
+     * @param string $refreshToken
+     *
+     * @return array
+     */
+    public static function refreshToken(string $refreshToken){
+        $key = self::KEY; //key
+        $time = time(); //当前时间
+
+        JWT::$leeway = 60;//当前时间减去60，把时间留点余地
+        //key要和签发的时候一样
+        $decoded = JWT::decode($refreshToken, self::KEY, ['HS256']); //HS256方式，这里要和签发的时候对应
+        $refreshTokenArr = (array)$decoded;
+
+        //公用信息
+        $newRefreshToken = [
+            'iss' => 'https://www.zzhpeng.cn', //签发者 可选
+            'iat' => $time, //签发时间
+            'uuid' => $refreshTokenArr['uuid']//自定义信息，不要定义敏感信息
+        ];
+
+        $access_token = $newRefreshToken;
+        $access_token['scopes'] = Scope::ROLE_ACCESS; //token标识，请求接口的token
+        $access_token['exp'] = $time+ self::ROLE_ACCESS_EXPIRE_TIME; //access_token过期时间,这里设置2个小时
+
+
+
+        $jsonList = [
+            'access_token'=>JWT::encode($access_token,$key),
+            'refresh_token'=>$refreshToken,
+            'token_type'=>self::TOKEN_TYPE //token_type：表示令牌类型，该值大小写不敏感，这里用bearer
+        ];
+
+        return $jsonList;
+    }
+
+    /**
      * 验证
      * @author: zzhpeng
      * Date: 2019/4/13
-     * @param $header
+     * @param $bearer
+     * @param $accessToken
      *
      * @return array
      * @throws \Exception
      */
-    public static function verifyToken(array $header) : array {
-        if(!isset($header['authorization'])) throw new \Exception('header缺少authorization参数');
-        //取出access_token
-        list($bearer,$accessToken) = explode(' ',$header['authorization'][0]);
+    public static function verifyToken($bearer,$accessToken) : array {
         if($bearer !== self::TOKEN_TYPE){
             throw new \Exception('authorization认证格式有误');
         }
@@ -81,7 +118,7 @@ class Token
     }
 
     /**
-     * 登录验证
+     * 获取jwt
      * @author: zzhpeng
      * Date: 2019/4/13
      * @param array $header
@@ -89,8 +126,11 @@ class Token
      * @return array
      * @throws \Exception
      */
-    public static function getAccessToken(array $header){
-        $jwt = self::verifyToken($header);
+    public static function getAccessToken(string $authorization){
+        //取出access_token
+        list($bearer,$accessToken) = explode(' ',$authorization);
+
+        $jwt = self::verifyToken($bearer,$accessToken);
         //权限方位
         if(!self::checkRoleAccessToken($jwt['scopes'])){
             throw new \Exception('scope权限有误');

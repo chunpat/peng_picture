@@ -28,8 +28,12 @@ class File extends Token
      */
     public function index(){
         try{
+            if($this->request()->getMethod() == 'OPTIONS'){
+                return $this->successResponse();
+            }
             $conditions = $this->getConditions();
             $param = $this->request()->getRequestParam();
+            var_dump($param);
             //用账户查找用户,验证是否存在该用户
             $file = MysqlPool::invoke(function (MysqlObject $db) use($conditions,$param) {
                 $fileModel = new FileModel($db);
@@ -52,7 +56,7 @@ class File extends Token
 
             return $this->successResponse($file);
         }catch (\Exception $exception){
-            return $this->failResponse($exception->getMessage());
+            return $this->failResponse($exception->getMessage(),$exception->getCode());
         }
     }
 
@@ -169,7 +173,7 @@ class File extends Token
             });
             return $this->successResponse();
         }catch (\Exception $exception){
-            return $this->failResponse($exception->getMessage());
+            return $this->failResponse($exception->getMessage(),$exception->getCode());
         }
     }
 
@@ -218,13 +222,16 @@ class File extends Token
             });
             return $this->successResponse();
         }catch (\Exception $exception){
-            return $this->failResponse($exception->getMessage());
+            return $this->failResponse($exception->getMessage(),$exception->getCode());
         }
     }
 
 
     public function getUpToken(){
         try{
+            if($this->request()->getMethod() == 'OPTIONS'){
+                return $this->successResponse();
+            }
             $userId = $this->userId();
             $qiniuPlugin = MysqlPool::invoke(function (MysqlObject $db) use($userId) {
                 $qiniuPluginModel = new QiniuPluginModel($db);
@@ -254,7 +261,7 @@ class File extends Token
                 'fname'=>'picture',
                 ]);
         }catch (\Exception $e){
-            return $this->failResponse($e->getMessage());
+            return $this->failResponse($e->getMessage(),$e->getCode());
         }
 
     }

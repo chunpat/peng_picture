@@ -42,7 +42,7 @@ class Catalog extends Token
 
             return $this->successResponse($catalog);
         }catch (\Exception $exception){
-            return $this->failResponse($exception->getMessage());
+            return $this->failResponse($exception->getMessage(),$exception->getCode());
         }
     }
 
@@ -135,7 +135,7 @@ class Catalog extends Token
             });
             return $this->successResponse();
         }catch (\Exception $exception){
-            return $this->failResponse($exception->getMessage());
+            return $this->failResponse($exception->getMessage(),$exception->getCode());
         }
     }
 
@@ -211,7 +211,7 @@ class Catalog extends Token
             });
             return $this->successResponse();
         }catch (\Exception $exception){
-            return $this->failResponse($exception->getMessage());
+            return $this->failResponse($exception->getMessage(),$exception->getCode());
         }
     }
 
@@ -260,7 +260,7 @@ class Catalog extends Token
             });
             return $this->successResponse();
         }catch (\Exception $exception){
-            return $this->failResponse($exception->getMessage());
+            return $this->failResponse($exception->getMessage(),$exception->getCode());
         }
     }
 

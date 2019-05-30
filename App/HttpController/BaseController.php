@@ -9,9 +9,8 @@
 namespace App\HttpController;
 
 
-use App\Enum\Code;
-use EasySwoole\EasySwoole\Config;
 use EasySwoole\Http\AbstractInterface\Controller;
+use EasySwoole\Http\Request;
 
 class BaseController extends Controller
 {
@@ -20,35 +19,14 @@ class BaseController extends Controller
         // TODO: Implement index() method.
     }
 
-//    function onRequest(?string $action): ?bool
-//    {
-//        //获取配置的TOKEN_ACTION_EXPIRE
-//        $excepts = Config::getInstance()->getConf('ACTION_EXCEPTS');
-//        if (parent::onRequest($action)) {
-//            //判断是否登录
-//            if (!in_array($action,$excepts)) {
-//                try{
-//                    $jwt = \App\Service\Token::LoginVerifyToken($this->request()->getHeaders());
-//                    var_dump($jwt);
-//                    //登录后操作
-//
-//
-//                    $this->successResponse();
-//                    return false;
-//                }catch(\Firebase\JWT\SignatureInvalidException $e) {  //签名不正确
-//                    $this->failResponse('签名不正确');
-//                }catch(\Firebase\JWT\BeforeValidException $e) {  // 签名在某个时间点之后才能用
-//                    $this->failResponse('签名在某个时间点之后才能用');
-//                }catch(\Firebase\JWT\ExpiredException $e) {  // token过期
-//                    $this->failResponse('access_token过期');
-//                }catch(\Exception $e) {  //其他错误
-//                    $this->failResponse($e->getMessage());
-//                }
-//            }
-//            return true;
-//        }
-//        return false;
-//    }
+    /**
+     * BaseController constructor.
+     */
+    function __construct()
+    {
+       parent::__construct();
+//       var_dump($_SERVER);
+    }
 
     /**
      * 返回成功
@@ -70,7 +48,7 @@ class BaseController extends Controller
             );
             $this->response()->write(json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
             $this->response()->withHeader('Content-type', 'application/json;charset=utf-8');
-            $this->response()->withStatus(200);
+            $this->response()->withStatus($statusCode);
             return true;
         } else {
             return false;
@@ -82,22 +60,22 @@ class BaseController extends Controller
      * @author: zzhpeng
      * Date: 2019/4/13
      * @param string $msg
-     * @param int    $statusCode
+     * @param int    $httpCode
      * @param null   $result
      *
      * @return bool
      */
-    protected function failResponse($msg = '接口返回错误',$statusCode = 400,$result = null)
+    protected function failResponse($msg = '接口返回错误',$httpCode = 400,$result = null)
     {
         if (!$this->response()->isEndResponse()) {
             $data = Array(
-                "error_code" => $statusCode,
+                "error_code" => 400,
                 "result" => $result,
                 "error_msg" => $msg
             );
             $this->response()->write(json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
             $this->response()->withHeader('Content-type', 'application/json;charset=utf-8');
-            $this->response()->withStatus(200);
+            $this->response()->withStatus($httpCode);
             return true;
         } else {
             return false;

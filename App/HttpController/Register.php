@@ -65,7 +65,7 @@ class Register extends Token
 
             return $this->successResponse();
         }catch (\Exception $e){
-            return $this->failResponse($e->getMessage());
+            return $this->failResponse($e->getMessage(),$e->getCode());
         }
 
     }

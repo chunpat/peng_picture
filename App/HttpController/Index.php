@@ -27,7 +27,7 @@ class Index extends Token
             $this->successResponse($user);
             // TODO: Implement index() method.
         }catch (\Exception $exception){
-            $this->failResponse($exception->getMessage());
+            $this->failResponse($exception->getMessage(),$exception->getCode());
         }
 
     }
